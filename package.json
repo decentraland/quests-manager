@@ -16,7 +16,6 @@
   "dependencies": {
     "@cloudflare/workers-types": "^4.20230518.0",
     "@dcl/quests-designer": "file:../quests-designer",
-    "@dcl/schemas": "^7.4.2",
     "@worker-tools/router": "^0.3.0-pre.6",
     "autoprefixer": "^10.4.14",
     "caniuse-lite": "^1.0.30001511",
