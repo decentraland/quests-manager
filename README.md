@@ -1,3 +1,3 @@
-# reels
+# Quests Manager
 
-This is the reels project
+Decentraland Quests Manager
