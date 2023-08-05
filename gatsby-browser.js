@@ -35,7 +35,7 @@ export const registerServiceWorker = () => true
 
 export const wrapRootElement = ({ element }) => (
   <AuthProvider>
-    <FeatureFlagProvider applicationName={["reels", "dapps"]}>
+    <FeatureFlagProvider applicationName={["dapps"]}>
       <ShareProvider>{element}</ShareProvider>
     </FeatureFlagProvider>
   </AuthProvider>

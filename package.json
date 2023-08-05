@@ -1,18 +1,18 @@
 {
-  "name": "reels",
+  "name": "@dcl/quests-manager",
   "version": "0.0.0-development",
   "description": "",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/decentraland/reels.git"
+    "url": "git+https://github.com/decentraland/quests-manager.git"
   },
   "author": "",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/decentraland/reels/issues"
+    "url": "https://github.com/decentraland/quests-manager/issues"
   },
-  "homepage": "https://github.com/decentraland/reels#readme",
+  "homepage": "https://github.com/decentraland/quests-manager#readme",
   "dependencies": {
     "@cloudflare/workers-types": "^4.20230518.0",
     "@dcl/quests-designer": "file:../quests-designer",
@@ -20,7 +20,7 @@
     "autoprefixer": "^10.4.14",
     "caniuse-lite": "^1.0.30001511",
     "core-js": "^3.31.0",
-    "decentraland-gatsby": "^5.68.4",
+    "decentraland-gatsby": "^5.72.0",
     "es6-shim": "^0.35.8",
     "gatsby": "^4.25.7",
     "gatsby-plugin-manifest": "^4.25.0",
@@ -55,7 +55,8 @@
     "@types/isomorphic-fetch": "^0.0.35",
     "@types/jest": "^29.5.2",
     "@types/line-reader": "^0.0.34",
-    "@types/react": "^17.0.62",
+    "@types/react": "^18.2.15",
+    "@types/react-dom": "^18.2.7",
     "@types/react-helmet": "^5.0.21",
     "@types/validator": "^13.7.17",
     "@types/web-push": "^3.3.2",

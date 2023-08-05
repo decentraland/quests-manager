@@ -1,9 +1,9 @@
 # Top-level configuration
-name = "reels-site"
+name = "quests-manager-site"
 main = "src/_worker.ts"
 compatibility_date = "2023-03-14"
 send_metrics = false
 
 workers_dev = false
-route = { pattern = "reels.decentraland.zone/*", zone_name = "reels.decentraland.zone" }
+route = { pattern = "quests-manager.decentraland.zone/*", zone_name = "quests-manager.decentraland.zone" }
 tsconfig = "./tsconfig.worker.json"

@@ -28,8 +28,8 @@ module.exports = {
     {
       resolve: `gatsby-plugin-manifest`,
       options: {
-        name: `Decentraland Places`,
-        short_name: `Places`,
+        name: `Decentraland Quests Manager`,
+        short_name: `Quests Manager`,
         start_url: `/`,
         background_color: `#ff2d55`,
         theme_color: `#ff2d55`,
