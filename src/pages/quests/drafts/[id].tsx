@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 
-import { QuestsDesigner } from "@dcl/quests-designer"
 import { generateNodesAndEdgesFromQuestDefinition } from "@dcl/quests-designer/dist/utils"
 import { useAuthContext } from "decentraland-gatsby/dist/context/Auth"
 import { navigate } from "decentraland-gatsby/dist/plugins/intl"
@@ -8,70 +7,54 @@ import { Button } from "decentraland-ui/dist/components/Button/Button"
 import { Container } from "decentraland-ui/dist/components/Container/Container"
 import { Field } from "decentraland-ui/dist/components/Field/Field"
 
-import { AddItem } from "../../components/AddItem"
-import { QuestsClient } from "../../quests"
-import { QuestAmplified } from "../../types"
-import { locations } from "../../utils"
+import { AddItem } from "../../../components/AddItem"
+import { DesignerView } from "../../../components/DesignerView"
+import { QuestsClient } from "../../../quests"
+import { getQuestDraftById, locations, updateQuestDraft } from "../../../utils"
 
-const EditPublishedQuest = ({ id }: { id: string }) => {
-  const [quest, setQuest] = useState<QuestAmplified | null>(null)
+const EditDraft = ({ id }: { id: string }) => {
   const [questDesigner, setQuestDesigner] = useState(false)
-  const [address, { loading }] = useAuthContext()
+  const [quest, setQuestDraft] = useState(getQuestDraftById(Number(id)))
 
-  let questClient: QuestsClient
-  if (address) {
-    questClient = new QuestsClient(address)
-  }
-
-  useEffect(() => {
-    if (address) {
-      questClient
-        .getQuest(id)
-        .then((quest) => {
-          setQuest({ ...quest })
-        })
-        .catch(console.error)
-    }
-  }, [address])
-
-  if (!quest) {
-    return <Container>Loading</Container>
-  }
-
-  if (loading) {
-    return <>Loading</>
-  }
+  const [address] = useAuthContext()
 
   if (!address) {
-    return <>Loading</>
+    return (
+      <Container>
+        <h2>Loading..</h2>
+      </Container>
+    )
+  }
+
+  const questClient = new QuestsClient(address)
+
+  if (!quest) {
+    return (
+      <Container>
+        <h2>Draft not found :(</h2>
+      </Container>
+    )
+  }
+
+  const saveDraft = () => {
+    updateQuestDraft(quest)
+    alert("Quest Draft saved!")
   }
 
   if (questDesigner) {
     const { nodes, edges } = generateNodesAndEdgesFromQuestDefinition(
-      quest.definition!
+      quest.definition,
+      quest.metadata?.stepPositions
     )
 
     return (
-      <div style={{ height: "100vh", width: "100vw" }}>
-        <QuestsDesigner
-          saveDesignButton={{
-            content: "Save new design",
-            onClick: (definition) => {
-              setQuest({ ...quest, definition })
-              setQuestDesigner(false)
-            },
-          }}
-          closeDesigner={() => setQuestDesigner(false)}
-          initialNodes={nodes}
-          initialEdges={edges}
-        />
-      </div>
+      <DesignerView initialEdges={edges} initialNodes={nodes} type="draft" />
     )
   }
 
   return (
     <Container>
-      <h2>Edit Quest {quest.id}</h2>
+      <h2>Edit Quest Draft {quest.id}</h2>
       <div style={{ width: "100%" }}>
         <h3>Basic Info</h3>
         <div
@@ -86,7 +69,7 @@ const EditPublishedQuest = ({ id }: { id: string }) => {
             placeholder="Name of the quest"
             value={quest.name}
             onChange={(e) => {
-              setQuest({ ...quest, name: e.target.value })
+              setQuestDraft({ ...quest, name: e.target.value })
             }}
           />
           <Field
@@ -94,7 +77,7 @@ const EditPublishedQuest = ({ id }: { id: string }) => {
             placeholder="Short description of the quest"
             value={quest.description}
             onChange={(e) => {
-              setQuest({
+              setQuestDraft({
                 ...quest,
                 description: e.target.value,
               })
@@ -105,7 +88,7 @@ const EditPublishedQuest = ({ id }: { id: string }) => {
             value={quest.imageUrl}
             placeholder="Image URL to display when listing the quest"
             onChange={(e) => {
-              setQuest({
+              setQuestDraft({
                 ...quest,
                 imageUrl: e.target.value,
               })
@@ -124,7 +107,7 @@ const EditPublishedQuest = ({ id }: { id: string }) => {
             label="Webhook URL"
             value={quest?.reward?.hook.webhookUrl || ""}
             onChange={(e) => {
-              setQuest({
+              setQuestDraft({
                 ...quest,
                 reward: {
                   items: quest.reward?.items || [],
@@ -162,7 +145,7 @@ const EditPublishedQuest = ({ id }: { id: string }) => {
               }
               placeholder="JSON data to send to the webhook"
               onChange={(e) => {
-                setQuest({
+                setQuestDraft({
                   ...quest,
                   reward: {
                     items: quest.reward?.items || [],
@@ -200,8 +183,7 @@ const EditPublishedQuest = ({ id }: { id: string }) => {
             } else {
               newItems[index] = item
             }
-
-            setQuest({
+            setQuestDraft({
               ...quest,
               reward: {
                 hook: {
@@ -216,9 +198,8 @@ const EditPublishedQuest = ({ id }: { id: string }) => {
       </div>
       <h3>Steps & Connections</h3>
       <p style={{ fontStyle: "italic", color: "gray" }}>
-        Steps and Connection are edited outside this tab. After clicking "save"
-        button on the other tab, you should click "update quets" here in order
-        to deploy the new version
+        Steps and Connection are edited outside this tab. By clicking "save"
+        here doesn't modify the steps and connections
       </p>
       <div
         style={{
@@ -246,25 +227,19 @@ const EditPublishedQuest = ({ id }: { id: string }) => {
       >
         <Button
           type="button"
-          content="Update Quest"
+          content="Save Draft"
           size="small"
-          color="google plus"
+          positive
           style={{ maxWidth: "20px" }}
-          onClick={() => questClient.updateQuest(quest.id, quest)}
-          // Add warning of updating a published quest will cause a new quest
+          onClick={() => saveDraft()}
         />
         <Button
           type="button"
-          content={quest.active ? "Deactivate Quest" : "Activate Quest"}
+          content="Deploy Dev"
           size="small"
           style={{ maxWidth: "20px" }}
-          negative={quest.active}
-          color="orange"
-          onClick={() => {
-            quest.active
-              ? questClient.deactivateQuest(quest.id)
-              : questClient.activateQuest(quest.id)
-          }}
+          color="instagram"
+          onClick={() => questClient.publishQuest(quest)}
         />
         <Button
           type="button"
@@ -278,4 +253,4 @@ const EditPublishedQuest = ({ id }: { id: string }) => {
   )
 }
 
-export default EditPublishedQuest
+export default EditDraft

@@ -1,37 +1,58 @@
 import React, { useEffect, useState } from "react"
 
-import { Quest } from "@dcl/quests-designer/dist/protocol/quests"
 import { useAuthContext } from "decentraland-gatsby/dist/context/Auth"
-import { Link } from "decentraland-gatsby/dist/plugins/intl"
+import { Link, navigate } from "decentraland-gatsby/dist/plugins/intl"
+import { Button } from "decentraland-ui/dist/components/Button/Button"
 import { Container } from "decentraland-ui/dist/components/Container/Container"
 
-import { getMyQuests } from "../quests"
-import { getDefinitionOnLocalStorage } from "../utils"
+import { QuestsClient } from "../quests"
+import { DraftQuest, QuestAmplified } from "../types"
+import { deleteQuestDraft, getQuestDrafts, locations } from "../utils"
 
 import "./index.css"
 
 export default function OverviewPage() {
   const [address] = useAuthContext()
 
-  const [quests, setQuests] = useState<Quest[]>([])
-
-  const draftQuests = getDefinitionOnLocalStorage()
+  const [quests, setQuests] = useState<QuestAmplified[]>([])
+  const [draftQuests, setDrafts] = useState<DraftQuest[]>(getQuestDrafts())
 
   useEffect(() => {
-    getMyQuests(address!)
-      .then((res) => setQuests(res.quests))
-      .catch(console.error)
-  }, [])
+    if (address) {
+      const questClient = new QuestsClient(address)
+      questClient
+        .getMyQuests()
+        .then((res) => setQuests(res.quests))
+        .catch(console.error)
+    }
+  }, [address])
+
+  if (!address) {
+    return <h2>Loading</h2>
+  }
 
   return (
     <Container className="full overview-container">
       <h1>Quests Manager</h1>
-      <Link href="/design/create">Let's Design a new Quest</Link>
+      <Button
+        onClick={() => navigate(locations.designer())}
+        content="Let's design a quest!"
+        style={{
+          backgroundColor: "var(--primary)",
+          color: "white",
+        }}
+      />
       <h2>Your Quests</h2>
       {quests.length ? (
-        <ul>
+        <ul style={{ listStyle: "none" }}>
           {quests.map((q) => {
-            return <li>{q.name}</li>
+            return (
+              <li key={q.name}>
+                <Link href={locations.editPublishedQuest(q.id)}>
+                  - {q.name}
+                </Link>
+              </li>
+            )
           })}
         </ul>
       ) : (
@@ -39,9 +60,33 @@ export default function OverviewPage() {
       )}
       <h2>Your Drafts</h2>
       {draftQuests.length ? (
-        <ul>
-          {draftQuests.map((_, i) => (
-            <li>Draft #{i + 1}</li>
+        <ul style={{ listStyle: "none" }}>
+          {draftQuests.map((draft) => (
+            <li key={draft.id}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  width: "25%",
+                  margin: "5px 0",
+                }}
+              >
+                <Link href={locations.editDraftQuest(draft.id)}>
+                  - Draft #{draft.id}
+                </Link>
+                <Button
+                  size="small"
+                  onClick={() => {
+                    deleteQuestDraft(draft.id)
+                    setDrafts(getQuestDrafts())
+                  }}
+                  style={{ minWidth: "0px", padding: "5px" }}
+                  negative
+                  content={<span>&#x2715;</span>}
+                />
+              </div>
+            </li>
           ))}
         </ul>
       ) : (
