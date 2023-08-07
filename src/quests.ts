@@ -2,7 +2,8 @@ import { Quest } from "@dcl/quests-designer/dist/protocol/quests"
 import API from "decentraland-gatsby/dist/utils/api/API"
 import env from "decentraland-gatsby/dist/utils/env"
 
-import { DraftQuest, QuestAmplified, QuestRewards } from "./utils"
+import { DraftQuest, QuestAmplified, QuestRewards } from "./types"
+import { isValidQuestDraft } from "./utils"
 
 export class QuestsClient extends API {
   static URL = env("QUESTS_SERVER_URL", "https://quests.decentraland.org/api")
@@ -21,38 +22,29 @@ export class QuestsClient extends API {
   }
 
   publishQuest(quest: Omit<DraftQuest, "metadata" | "id">) {
-    if (!quest.name) {
-      throw new Error("Quest must have a name")
+    if (!isValidQuestDraft(quest)) {
+      throw new Error("Invalid Quest")
     }
 
-    // let parsedRequestBody = null
-    // if (quest.reward?.hook.requestBody) {
-    //   try {
-    //     console.log(quest.reward?.hook.requestBody)
-    //     parsedRequestBody = JSON.parse(
-    //       JSON.stringify(quest.reward.hook.requestBody)
-    //     )
-    //     console.log(parsedRequestBody)
-    //   } catch (error) {
-    //     throw new Error("Inavlid Request Body must be a valid JSON")
-    //   }
-    // }
+    // we must stringify all non-string parameters
+    // server expects map<string, string>
+    for (const step of quest.definition.steps) {
+      for (const task of step.tasks) {
+        for (const action of task.actionItems) {
+          for (const param in action.parameters) {
+            if (typeof action.parameters[param] != "string") {
+              action.parameters[param] = JSON.stringify(
+                action.parameters[param]
+              )
+            }
+          }
+        }
+      }
+    }
 
     return this.fetch<{ id: string }>(
       `/quests`,
-      this.options()
-        .method("POST")
-        .authorization({ sign: true })
-        .json({
-          ...quest,
-          reward: {
-            ...quest.reward,
-            hook: {
-              ...quest.reward?.hook,
-              requestBody: { beneficary: "{user_address}", key: "ee233sd2" },
-            },
-          },
-        })
+      this.options().method("POST").authorization({ sign: true }).json(quest)
     )
   }
 
@@ -64,14 +56,20 @@ export class QuestsClient extends API {
       this.options().method("GET").authorization({ sign: true })
     )
 
-    const questRewards = await this.fetch<QuestRewards["reward"]>(
-      `/quests/${id}/reward?with_hook=true`,
-      this.options().method("GET").authorization({ sign: true })
-    )
+    let questRewards: QuestRewards["reward"] | null = null
+
+    try {
+      questRewards = await this.fetch<QuestRewards["reward"]>(
+        `/quests/${id}/reward?with_hook=true`,
+        this.options().method("GET").authorization({ sign: true })
+      )
+    } catch (error) {
+      console.log(error)
+    }
 
     return {
       ...questWithoutRewards.quest,
-      reward: questRewards,
+      reward: questRewards ? questRewards : undefined,
     }
   }
 
@@ -100,6 +98,13 @@ export class QuestsClient extends API {
     return this.fetch(
       `/quests/${id}/activate`,
       this.options().method("PUT").authorization({ sign: true })
+    )
+  }
+
+  getOldVersions(id: string) {
+    return this.fetch<{ updates: string[] }>(
+      `/quests/${id}/updates`,
+      this.options().method("GET")
     )
   }
 }

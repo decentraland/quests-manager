@@ -15,11 +15,13 @@ export const DesignerView = ({
   initialEdges,
   type = "new",
   questId,
+  close,
 }: {
   initialNodes?: Node[]
   initialEdges?: Edge[]
   type?: "new" | "draft" | "published"
   questId?: string
+  close?: () => void
 }) => {
   return (
     <div style={{ height: "100vh", width: "100vw" }}>
@@ -58,7 +60,7 @@ export const DesignerView = ({
             }
           },
         }}
-        closeDesigner={() => navigate(locations.home())}
+        closeDesigner={() => (close ? close() : navigate(locations.home()))}
         initialNodes={initialNodes}
         initialEdges={initialEdges}
       />

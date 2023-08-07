@@ -15,7 +15,7 @@ export type DraftQuest = {
 } & Partial<QuestRewards>
 
 export type QuestAmplified = Omit<Quest, "creatorAddress"> &
-  QuestRewards & {
+  Partial<QuestRewards> & {
     active: boolean
   }
 
@@ -23,8 +23,14 @@ export type QuestRewards = {
   reward: {
     hook: {
       webhookUrl: string
-      requestBody: string // Verify if it's a well-built Record<string, string>
+      requestBody: Record<string, string>
     }
     items: { name: string; imageLink: string }[]
   }
 }
+
+export type RawQuest = {
+  name?: string
+  description?: string
+  imageUrl?: string
+} & Partial<QuestRewards>

@@ -7,7 +7,12 @@ import { Container } from "decentraland-ui/dist/components/Container/Container"
 
 import { QuestsClient } from "../quests"
 import { DraftQuest, QuestAmplified } from "../types"
-import { deleteQuestDraft, getQuestDrafts, locations } from "../utils"
+import {
+  deleteQuestDraft,
+  getQuestDrafts,
+  isValidQuestDraft,
+  locations,
+} from "../utils"
 
 import "./index.css"
 
@@ -33,7 +38,7 @@ export default function OverviewPage() {
 
   return (
     <Container className="full overview-container">
-      <h1>Quests Manager</h1>
+      <h1 style={{ textAlign: "center" }}>Quests Manager</h1>
       <Button
         onClick={() => navigate(locations.designer())}
         content="Let's design a quest!"
@@ -44,51 +49,195 @@ export default function OverviewPage() {
       />
       <h2>Your Quests</h2>
       {quests.length ? (
-        <ul style={{ listStyle: "none" }}>
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <p style={{ width: "20%", fontWeight: "bold", fontSize: "16px" }}>
+              Name
+            </p>
+            <p style={{ width: "20%", fontWeight: "bold", fontSize: "16px" }}>
+              Description
+            </p>
+            <p style={{ width: "20%", fontWeight: "bold", fontSize: "16px" }}>
+              Quest Image's Link
+            </p>
+            <p
+              style={{
+                width: "20%",
+                fontWeight: "bold",
+                fontSize: "16px",
+              }}
+            >
+              Status
+            </p>
+            <p
+              style={{
+                width: "20%",
+                marginBottom: "1em",
+                fontWeight: "bold",
+                fontSize: "16px",
+              }}
+            ></p>
+          </div>
           {quests.map((q) => {
             return (
-              <li key={q.name}>
-                <Link href={locations.editPublishedQuest(q.id)}>
-                  - {q.name}
+              <div
+                key={q.name}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginTop: "10px",
+                }}
+              >
+                <p style={{ width: "20%", marginBottom: "0" }}>- {q.name}</p>
+                <p style={{ width: "20%", marginBottom: "0" }}>
+                  {q.description}
+                </p>
+                <Link
+                  style={{ width: "20%", marginBottom: "0" }}
+                  href={q.imageUrl}
+                >
+                  Quest Image
                 </Link>
-              </li>
+                <p style={{ width: "20%", marginBottom: "0" }}>
+                  {q.active ? "Active" : "Not Active"}
+                </p>
+                <div
+                  style={{
+                    width: "20%",
+                    display: "flex",
+                  }}
+                >
+                  <Button
+                    size="small"
+                    onClick={() => navigate(locations.editPublishedQuest(q.id))}
+                    style={{
+                      minWidth: "20%",
+                      padding: "5px",
+                      marginRight: "5px",
+                    }}
+                    positive
+                    content="Edit"
+                  />
+                </div>
+              </div>
             )
           })}
-        </ul>
+        </div>
       ) : (
         <p>No Quests</p>
       )}
       <h2>Your Drafts</h2>
       {draftQuests.length ? (
-        <ul style={{ listStyle: "none" }}>
-          {draftQuests.map((draft) => (
-            <li key={draft.id}>
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <p style={{ width: "20%", fontWeight: "bold", fontSize: "16px" }}>
+              #
+            </p>
+            <p style={{ width: "20%", fontWeight: "bold", fontSize: "16px" }}>
+              Name
+            </p>
+            <p style={{ width: "20%", fontWeight: "bold", fontSize: "16px" }}>
+              Description
+            </p>
+            <p
+              style={{
+                width: "20%",
+                fontWeight: "bold",
+                fontSize: "16px",
+              }}
+            >
+              Is ready to be published?
+            </p>
+            <p
+              style={{
+                width: "20%",
+                marginBottom: "1em",
+                fontWeight: "bold",
+                fontSize: "16px",
+              }}
+            ></p>
+          </div>
+          {draftQuests.map((q) => {
+            return (
               <div
+                key={q.name}
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
-                  width: "25%",
-                  margin: "5px 0",
+                  marginTop: "10px",
                 }}
               >
-                <Link href={locations.editDraftQuest(draft.id)}>
-                  - Draft #{draft.id}
-                </Link>
-                <Button
-                  size="small"
-                  onClick={() => {
-                    deleteQuestDraft(draft.id)
-                    setDrafts(getQuestDrafts())
+                <p style={{ width: "20%", marginBottom: "0" }}>- {q.id}</p>
+                <p style={{ width: "20%", marginBottom: "0" }}>
+                  {q.name || "No name"}
+                </p>
+                <p style={{ width: "20%", marginBottom: "0" }}>
+                  {q.description || "No Description"}
+                </p>
+                <p style={{ width: "20%", marginBottom: "0" }}>
+                  {isValidQuestDraft(q) ? "Ready" : "Not Ready"}
+                </p>
+                <div
+                  style={{
+                    width: "20%",
+                    display: "flex",
                   }}
-                  style={{ minWidth: "0px", padding: "5px" }}
-                  negative
-                  content={<span>&#x2715;</span>}
-                />
+                >
+                  <Button
+                    size="small"
+                    onClick={() => navigate(locations.editDraftQuest(q.id))}
+                    style={{
+                      minWidth: "20%",
+                      padding: "5px",
+                      marginRight: "5px",
+                    }}
+                    positive
+                    content="Edit"
+                  />
+                  <Button
+                    size="small"
+                    onClick={() => navigate(locations.editDraftQuest(q.id))}
+                    style={{
+                      minWidth: "20%",
+                      padding: "5px",
+                      marginRight: "5px",
+                    }}
+                    color="instagram"
+                    content="Export"
+                  />
+                  <Button
+                    size="small"
+                    onClick={() => {
+                      deleteQuestDraft(q.id)
+                      setDrafts(getQuestDrafts())
+                    }}
+                    style={{
+                      minWidth: "20%",
+                      padding: "5px",
+                      alignSelf: "flex-end",
+                    }}
+                    negative
+                    content={<span>&#x2715;</span>}
+                  />
+                </div>
               </div>
-            </li>
-          ))}
-        </ul>
+            )
+          })}
+        </div>
       ) : (
         <p>No Drafts</p>
       )}

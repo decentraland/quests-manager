@@ -55,13 +55,11 @@ export const AddItem = ({
       style={{
         display: "flex",
         flexDirection: "column",
-        // flexWrap: "wrap",
-        // maxHeight: "100px",
         marginTop: "20px",
         marginBottom: "20px",
       }}
     >
-      <p>Current Items: </p>
+      <h4>Current Items: </h4>
       {items.length ? (
         <ul>
           {items.map((item, i) => (

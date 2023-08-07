@@ -67,4 +67,25 @@ export const locations = {
   editDraftQuest: (id: number) =>
     API.url(GATSBY_BASE_URL, `/quests/drafts/${id}`),
   editPublishedQuest: (id: string) => API.url(GATSBY_BASE_URL, `/quests/${id}`),
+  oldQuest: (id: string) => API.url(GATSBY_BASE_URL, `/quests/old/${id}`),
+}
+
+export const isValidQuestDraft = (
+  quest: Omit<DraftQuest, "metadata" | "id">
+): boolean => {
+  if (!quest.name) return false
+
+  if (!quest.definition) return false
+
+  if (!quest.imageUrl) return false
+
+  if (!quest.description) return false
+
+  if (quest.reward) {
+    if (quest.reward.hook.requestBody && !quest.reward.hook.webhookUrl)
+      return false
+    if (quest.reward.items.length === 0) return false
+  }
+
+  return true
 }

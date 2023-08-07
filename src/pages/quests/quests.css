@@ -1,0 +1,14 @@
+.key-value .dcl.field.simple {
+    min-width: 0px;
+    font-size: 8px;
+    margin: 5px 0;
+}
+
+.key-value .dcl.field .ui.input input {
+    padding: 5px 0;
+    font-size: 18px;
+}
+
+.key-value .dcl.field.simple .message {
+    display: none;
+}
