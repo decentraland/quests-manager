@@ -44,7 +44,11 @@ export class QuestsClient extends API {
 
     return this.fetch<{ id: string }>(
       `/quests`,
-      this.options().method("POST").authorization({ sign: true }).json(quest)
+      this.options()
+        .method("POST")
+        .authorization({ sign: true })
+        .json(quest)
+        .metadata(quest as unknown as any)
     )
   }
 

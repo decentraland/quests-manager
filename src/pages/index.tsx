@@ -210,7 +210,16 @@ export default function OverviewPage() {
                   />
                   <Button
                     size="small"
-                    onClick={() => navigate(locations.editDraftQuest(q.id))}
+                    onClick={async () => {
+                      if (isValidQuestDraft(q)) {
+                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                        const { id, ...quest } = q
+                        await navigator.clipboard.writeText(
+                          JSON.stringify(quest)
+                        )
+                        alert("Definition has been Copied to your clipboard")
+                      }
+                    }}
                     style={{
                       minWidth: "20%",
                       padding: "5px",
@@ -218,6 +227,7 @@ export default function OverviewPage() {
                     }}
                     color="instagram"
                     content="Export"
+                    disabled={!isValidQuestDraft(q)}
                   />
                   <Button
                     size="small"
