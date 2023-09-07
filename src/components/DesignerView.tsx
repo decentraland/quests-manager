@@ -2,9 +2,13 @@ import React from "react"
 
 import { Edge, Node } from "@dcl/quests-designer/dist/types"
 import useAsyncState from "decentraland-gatsby/dist/hooks/useAsyncState"
-import { back } from "decentraland-gatsby/dist/plugins/intl"
+import { back, navigate } from "decentraland-gatsby/dist/plugins/intl"
 
-import { storeQuestDraft, updateQuestDraftDefinition } from "../utils"
+import {
+  locations,
+  storeQuestDraft,
+  updateQuestDraftDefinition,
+} from "../utils"
 
 export const DesignerView = ({
   initialNodes,
@@ -35,8 +39,8 @@ export const DesignerView = ({
                       : "Update Quest",
                   onClick: (definition, nodes) => {
                     switch (type) {
-                      case "new":
-                        storeQuestDraft({
+                      case "new": {
+                        const id = storeQuestDraft({
                           definition,
                           metadata: {
                             stepPositions: nodes.reduce((acc, curr) => {
@@ -46,9 +50,10 @@ export const DesignerView = ({
                           },
                         })
                         if (typeof window !== "undefined") {
-                          alert("Quest Definition stored as a draft")
+                          navigate(locations.editDraftQuest(id))
                         }
                         break
+                      }
                       case "draft":
                         updateQuestDraftDefinition(Number(questId), {
                           definition,

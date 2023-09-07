@@ -7,6 +7,7 @@ import { Back } from "decentraland-ui/dist/components/Back/Back"
 import { Button } from "decentraland-ui/dist/components/Button/Button"
 import { Container } from "decentraland-ui/dist/components/Container/Container"
 import { Loader } from "decentraland-ui/dist/components/Loader/Loader"
+import { Modal } from "decentraland-ui/dist/components/Modal/Modal"
 import { SignIn } from "decentraland-ui/dist/components/SignIn/SignIn"
 
 import { DesignerView } from "../../components/DesignerView"
@@ -22,7 +23,13 @@ const EditPublishedQuest = ({ id }: { id: string }) => {
   const [questDesigner, setQuestDesigner] = useState(false)
   const [oldVersions, setOldVersions] = useState<string[]>([])
   const [account, accountState] = useAuthContext()
-  const [publishLoading, setPublishLoading] = useState(false)
+  const [editState, setEditState] = useState({
+    updatingQuestLoading: false,
+    activatingQuest: false,
+    activatingQuestLoading: false,
+    deactivatingQuest: false,
+    deactivatingQuestLoading: false,
+  })
 
   let questClient: QuestsClient
   if (account) {
@@ -45,7 +52,7 @@ const EditPublishedQuest = ({ id }: { id: string }) => {
   }, [account, id])
 
   if (!quest) {
-    return <Container>Loading</Container>
+    return <Loader size="massive" active />
   }
 
   if (!account || accountState.loading) {
@@ -72,7 +79,12 @@ const EditPublishedQuest = ({ id }: { id: string }) => {
     )
   }
 
-  if (publishLoading) return <Loader size="massive" active />
+  if (
+    editState.updatingQuestLoading ||
+    editState.activatingQuestLoading ||
+    editState.deactivatingQuestLoading
+  )
+    return <Loader size="massive" active />
 
   return (
     <Container>
@@ -116,12 +128,22 @@ const EditPublishedQuest = ({ id }: { id: string }) => {
             size="small"
             onClick={async () => {
               if (quest.active) {
-                await questClient.deactivateQuest(quest.id)
+                setEditState({
+                  updatingQuestLoading: false,
+                  activatingQuest: false,
+                  activatingQuestLoading: false,
+                  deactivatingQuest: true,
+                  deactivatingQuestLoading: false,
+                })
               } else {
-                await questClient.activateQuest(quest.id)
+                setEditState({
+                  updatingQuestLoading: false,
+                  activatingQuest: true,
+                  activatingQuestLoading: false,
+                  deactivatingQuest: false,
+                  deactivatingQuestLoading: false,
+                })
               }
-              const updatedQuest = await questClient.getQuest(quest.id)
-              setQuest({ ...updatedQuest })
             }}
           />
         </div>
@@ -134,13 +156,19 @@ const EditPublishedQuest = ({ id }: { id: string }) => {
       </div>
       <div style={{ marginTop: "20px", marginLeft: "60px" }}>
         <h3>Old Versions</h3>
-        <ul style={{ listStyle: "none" }}>
-          {oldVersions.map((version) => (
-            <li key={version}>
-              <Link href={locations.oldQuest(version)}>- Quest {version}</Link>
-            </li>
-          ))}
-        </ul>
+        {oldVersions.length > 0 ? (
+          <ul style={{ listStyle: "none" }}>
+            {oldVersions.map((version) => (
+              <li key={version}>
+                <Link href={locations.oldQuest(version)}>
+                  - Quest {version}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          "No old versions"
+        )}
       </div>
       <div
         style={{
@@ -158,31 +186,141 @@ const EditPublishedQuest = ({ id }: { id: string }) => {
             content="Publish Changes"
             size="small"
             onClick={async () => {
-              setPublishLoading(true)
+              setEditState({
+                updatingQuestLoading: true,
+                activatingQuest: false,
+                activatingQuestLoading: false,
+                deactivatingQuest: false,
+                deactivatingQuestLoading: false,
+              })
               const { quest_id } = await questClient.updateQuest(
                 quest.id,
                 quest
               )
               setTimeout(() => {
-                setPublishLoading(false)
+                setEditState({
+                  updatingQuestLoading: false,
+                  activatingQuest: false,
+                  activatingQuestLoading: false,
+                  deactivatingQuest: false,
+                  deactivatingQuestLoading: false,
+                })
                 navigate(locations.editPublishedQuest(quest_id))
               }, 2500)
             }}
           />
           <p
             style={{
-              fontSize: "8px",
+              fontSize: "10px",
               marginTop: "5px",
               whiteSpace: "pre",
               color: "#676370",
             }}
           >
-            Update a published Quest will cause a new Quest version, with new ID
+            Update a published Quest will cause a new Quest version, {"\n"}with
+            new ID and this Quest will be deactivated and no longer updatable
           </p>
         </div>
       </div>
+      {editState.activatingQuest && (
+        <ChangeQuestState
+          type="activate"
+          onProceed={async () => {
+            setEditState({
+              updatingQuestLoading: false,
+              activatingQuest: false,
+              activatingQuestLoading: true,
+              deactivatingQuest: false,
+              deactivatingQuestLoading: false,
+            })
+            await questClient.activateQuest(quest.id)
+            setTimeout(async () => {
+              setEditState({
+                updatingQuestLoading: false,
+                activatingQuest: false,
+                activatingQuestLoading: false,
+                deactivatingQuest: false,
+                deactivatingQuestLoading: false,
+              })
+              const updatedQuest = await questClient.getQuest(quest.id)
+              setQuest({ ...updatedQuest })
+            }, 1500)
+          }}
+          onCancel={() => {
+            setEditState({
+              updatingQuestLoading: false,
+              activatingQuest: false,
+              activatingQuestLoading: false,
+              deactivatingQuest: false,
+              deactivatingQuestLoading: false,
+            })
+          }}
+        />
+      )}
+      {editState.deactivatingQuest && (
+        <ChangeQuestState
+          type="deactivate"
+          onProceed={async () => {
+            setEditState({
+              updatingQuestLoading: false,
+              activatingQuest: false,
+              activatingQuestLoading: false,
+              deactivatingQuest: false,
+              deactivatingQuestLoading: true,
+            })
+            await questClient.deactivateQuest(quest.id)
+            setTimeout(async () => {
+              setEditState({
+                updatingQuestLoading: false,
+                activatingQuest: false,
+                activatingQuestLoading: false,
+                deactivatingQuest: false,
+                deactivatingQuestLoading: false,
+              })
+              const updatedQuest = await questClient.getQuest(quest.id)
+              setQuest({ ...updatedQuest })
+            }, 1500)
+          }}
+          onCancel={() => {
+            setEditState({
+              updatingQuestLoading: false,
+              activatingQuest: false,
+              activatingQuestLoading: false,
+              deactivatingQuest: false,
+              deactivatingQuestLoading: false,
+            })
+          }}
+        />
+      )}
     </Container>
   )
 }
+
+const ChangeQuestState = ({
+  type,
+  onProceed,
+  onCancel,
+}: {
+  type: "activate" | "deactivate"
+  onProceed: () => void
+  onCancel: () => void
+}) => (
+  <Modal open={true} size="tiny">
+    <Modal.Header>You're about to change the state of your Quest</Modal.Header>
+    <Modal.Content>
+      {type == "activate"
+        ? "If you activate your Quest, anyone can start playing it again"
+        : "If you deactivate your Quest, no one will be able to start playing your Quest"}
+    </Modal.Content>
+    <Modal.Actions>
+      <Button primary onClick={onProceed} size="small">
+        Proceed
+      </Button>
+      <Button onClick={onCancel} size="small">
+        Cancel
+      </Button>
+    </Modal.Actions>
+  </Modal>
+)
 
 export default EditPublishedQuest

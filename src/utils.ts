@@ -16,13 +16,14 @@ export const getQuestDraftById = (id: number) => {
   return getQuestDrafts().find((q) => q.id == id)
 }
 
-export const storeQuestDraft = (quest: Omit<DraftQuest, "id">) => {
-  if (typeof window === "undefined") return
+export const storeQuestDraft = (quest: Omit<DraftQuest, "id">): number => {
+  if (typeof window === "undefined") return 0
 
   const db = getQuestDrafts()
   const id = db.length ? db[db.length - 1].id + 1 : 1
   db.push({ id, ...quest })
   localStorage.setItem(LOCAL_DB, JSON.stringify(db))
+  return id
 }
 
 export const updateQuestDraft = (quest: DraftQuest): boolean => {
