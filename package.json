@@ -14,9 +14,7 @@
   },
   "homepage": "https://github.com/decentraland/quests-manager#readme",
   "dependencies": {
-    "@cloudflare/workers-types": "^4.20230518.0",
     "@dcl/quests-designer": "file:../quests-designer",
-    "@worker-tools/router": "^0.3.0-pre.6",
     "autoprefixer": "^10.4.14",
     "caniuse-lite": "^1.0.30001511",
     "core-js": "^3.31.0",
@@ -40,9 +38,7 @@
     "react-dom": "^17.0.2",
     "react-helmet": "^6.1.0",
     "sharp": "^0.29.3",
-    "ts-node": "^10.9.1",
     "uuid": "^9.0.0",
-    "wrangler": "^2.16.0",
     "xml": "^1.0.1"
   },
   "devDependencies": {
@@ -80,7 +76,8 @@
     "lint-staged": "^12.3.8",
     "prettier": "^2.8.8",
     "ts-jest": "^29.1.1",
-    "typescript": "^4.7.2"
+    "typescript": "^4.7.2",
+    "ts-node": "^10.9.1"
   },
   "scripts": {
     "develop": "gatsby develop --https -H 0.0.0.0",

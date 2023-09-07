@@ -1,9 +1,0 @@
-# Top-level configuration
-name = "quests-manager-site"
-main = "src/_worker.ts"
-compatibility_date = "2023-03-14"
-send_metrics = false
-
-workers_dev = false
-route = { pattern = "quests-manager.decentraland.zone/*", zone_name = "quests-manager.decentraland.zone" }
-tsconfig = "./tsconfig.worker.json"
