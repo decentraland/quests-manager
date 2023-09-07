@@ -2,10 +2,13 @@ import React, { useState } from "react"
 
 import { generateNodesAndEdgesFromQuestDefinition } from "@dcl/quests-designer/dist/utils"
 import { useAuthContext } from "decentraland-gatsby/dist/context/Auth"
-import { back } from "decentraland-gatsby/dist/plugins/intl"
+import { back, navigate } from "decentraland-gatsby/dist/plugins/intl"
 import { Back } from "decentraland-ui/dist/components/Back/Back"
 import { Button } from "decentraland-ui/dist/components/Button/Button"
 import { Container } from "decentraland-ui/dist/components/Container/Container"
+import { Loader } from "decentraland-ui/dist/components/Loader/Loader"
+import { Modal } from "decentraland-ui/dist/components/Modal/Modal"
+import { SignIn } from "decentraland-ui/dist/components/SignIn/SignIn"
 
 import { DesignerView } from "../../../components/DesignerView"
 import { Edit } from "../../../components/Edit"
@@ -14,6 +17,7 @@ import {
   deleteQuestDraft,
   getQuestDraftById,
   isValidQuestDraft,
+  locations,
   updateQuestDraft,
 } from "../../../utils"
 
@@ -22,18 +26,26 @@ import "../quests.css"
 const EditDraft = ({ id }: { id: string }) => {
   const [questDesigner, setQuestDesigner] = useState(false)
   const [quest, setQuestDraft] = useState(getQuestDraftById(Number(id)))
+  const [editDraftState, setEditDraftState] = useState({
+    savedDraft: false,
+    publishingQuest: false,
+    publishedQuest: false,
+    publishQuestLoading: false,
+    publishedQuestID: "",
+  })
 
-  const [address] = useAuthContext()
+  const [account, accountState] = useAuthContext()
 
-  if (!address) {
+  if (!account || accountState.loading) {
     return (
-      <Container>
-        <h2>Loading..</h2>
-      </Container>
+      <SignIn
+        onConnect={() => accountState.select()}
+        isConnecting={accountState.loading}
+      />
     )
   }
 
-  const questClient = new QuestsClient(address)
+  const questClient = new QuestsClient(account)
 
   if (!quest) {
     return (
@@ -45,7 +57,13 @@ const EditDraft = ({ id }: { id: string }) => {
 
   const saveDraft = () => {
     updateQuestDraft(quest)
-    alert("Draft saved!")
+    setEditDraftState({
+      savedDraft: true,
+      publishingQuest: false,
+      publishQuestLoading: false,
+      publishedQuest: false,
+      publishedQuestID: "",
+    })
   }
 
   if (questDesigner) {
@@ -60,6 +78,21 @@ const EditDraft = ({ id }: { id: string }) => {
         initialNodes={nodes}
         type="draft"
         close={() => setQuestDesigner(false)}
+      />
+    )
+  }
+
+  if (editDraftState.publishQuestLoading)
+    return <Loader active size="massive" />
+
+  if (editDraftState.publishedQuest) {
+    return (
+      <QuestPublished
+        onClick={() => {
+          navigate(
+            locations.editPublishedQuest(editDraftState.publishedQuestID)
+          )
+        }}
       />
     )
   }
@@ -109,7 +142,7 @@ const EditDraft = ({ id }: { id: string }) => {
           />
         </div>
       </div>
-      <div style={{ width: "50%" }}>
+      <div style={{ width: "50%", marginLeft: "60px" }}>
         <Edit
           quest={quest}
           onChange={(editedQuest) =>
@@ -123,6 +156,7 @@ const EditDraft = ({ id }: { id: string }) => {
           justifyContent: "space-between",
           marginTop: "40px",
           width: "30%",
+          marginLeft: "60px",
         }}
       >
         <Button
@@ -143,15 +177,134 @@ const EditDraft = ({ id }: { id: string }) => {
           primary
           disabled={!isValidQuestDraft(quest)}
           style={{ maxWidth: "20px" }}
-          onClick={() => {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const { metadata, id, ...rest } = quest
-            questClient.publishQuest(rest)
+          onClick={async () => {
+            setEditDraftState({
+              publishedQuestID: "",
+              publishingQuest: true,
+              publishedQuest: false,
+              publishQuestLoading: true,
+              savedDraft: false,
+            })
           }}
         />
       </div>
+      {editDraftState.savedDraft && (
+        <SavedDraftModal
+          onClick={() =>
+            setEditDraftState({
+              publishedQuest: false,
+              publishingQuest: false,
+              savedDraft: false,
+              publishQuestLoading: false,
+              publishedQuestID: "",
+            })
+          }
+        />
+      )}
+      {editDraftState.publishingQuest && (
+        <PublishingQuest
+          onCancel={() => {
+            setEditDraftState({
+              publishedQuestID: "",
+              publishingQuest: false,
+              publishedQuest: false,
+              publishQuestLoading: true,
+              savedDraft: false,
+            })
+          }}
+          onDelete={async () => {
+            deleteQuestDraft(Number(quest.id))
+            setEditDraftState({
+              publishedQuestID: "",
+              publishingQuest: false,
+              publishedQuest: false,
+              publishQuestLoading: true,
+              savedDraft: false,
+            })
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { metadata, id, ...rest } = quest
+            const response = await questClient.publishQuest(rest)
+            setTimeout(() => {
+              setEditDraftState({
+                publishedQuestID: response.id,
+                publishingQuest: false,
+                publishedQuest: true,
+                publishQuestLoading: false,
+                savedDraft: false,
+              })
+            }, 1500)
+          }}
+          onProceed={async () => {
+            setEditDraftState({
+              publishedQuestID: "",
+              publishingQuest: false,
+              publishedQuest: false,
+              publishQuestLoading: true,
+              savedDraft: false,
+            })
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { metadata, id, ...rest } = quest
+            const response = await questClient.publishQuest(rest)
+            setTimeout(() => {
+              setEditDraftState({
+                publishedQuestID: response.id,
+                publishingQuest: false,
+                publishedQuest: true,
+                publishQuestLoading: false,
+                savedDraft: false,
+              })
+            }, 1500)
+          }}
+        />
+      )}
     </Container>
   )
 }
+
+const SavedDraftModal = ({ onClick }: { onClick: () => void }) => (
+  <Modal open={true} size="tiny">
+    <Modal.Content>Your draft has been saved</Modal.Content>
+    <Modal.Actions>
+      <Button primary onClick={onClick}>
+        Close
+      </Button>
+    </Modal.Actions>
+  </Modal>
+)
+
+const QuestPublished = ({ onClick }: { onClick: () => void }) => (
+  <Modal open={true} size="tiny">
+    <Modal.Content>Your Quest Was published successfully</Modal.Content>
+    <Modal.Actions>
+      <Button primary onClick={onClick}>
+        Go
+      </Button>
+    </Modal.Actions>
+  </Modal>
+)
+
+const PublishingQuest = ({
+  onDelete,
+  onProceed,
+  onCancel,
+}: {
+  onDelete: () => void
+  onProceed: () => void
+  onCancel: () => void
+}) => (
+  <Modal open={true} size="tiny">
+    <Modal.Header>You're about to publish the Quest</Modal.Header>
+    <Modal.Content>What do you want to do with the Draft?</Modal.Content>
+    <Modal.Actions>
+      <Button primary onClick={onProceed}>
+        Keep it & Publish
+      </Button>
+      <Button inverted onClick={onDelete}>
+        Delete it & Publsih
+      </Button>
+      <Button onClick={onCancel}>Cancel</Button>
+    </Modal.Actions>
+  </Modal>
+)
 
 export default EditDraft

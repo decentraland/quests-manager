@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react"
 
-import { QuestsDesigner } from "@dcl/quests-designer"
 import { generateNodesAndEdgesFromQuestDefinition } from "@dcl/quests-designer/dist/utils"
 import { useAuthContext } from "decentraland-gatsby/dist/context/Auth"
 import { back } from "decentraland-gatsby/dist/plugins/intl"
 import { Back } from "decentraland-ui/dist/components/Back/Back"
 import { Button } from "decentraland-ui/dist/components/Button/Button"
 import { Container } from "decentraland-ui/dist/components/Container/Container"
+import { SignIn } from "decentraland-ui/dist/components/SignIn/SignIn"
 
+import { DesignerView } from "../../../components/DesignerView"
 import { Edit } from "../../../components/Edit"
 import { QuestsClient } from "../../../quests"
 import { QuestAmplified } from "../../../types"
@@ -17,15 +18,15 @@ import "../quests.css"
 const ViewUpdatedQuest = ({ id }: { id: string }) => {
   const [quest, setQuest] = useState<QuestAmplified | null>(null)
   const [questDesigner, setQuestDesigner] = useState(false)
-  const [address, { loading }] = useAuthContext()
+  const [account, accountState] = useAuthContext()
 
   let questClient: QuestsClient
-  if (address) {
-    questClient = new QuestsClient(address)
+  if (account) {
+    questClient = new QuestsClient(account)
   }
 
   useEffect(() => {
-    if (address) {
+    if (account) {
       questClient
         .getQuest(id)
         .then((quest) => {
@@ -33,18 +34,19 @@ const ViewUpdatedQuest = ({ id }: { id: string }) => {
         })
         .catch(console.error)
     }
-  }, [address])
+  }, [account])
 
   if (!quest) {
     return <Container>Loading</Container>
   }
 
-  if (loading) {
-    return <>Loading</>
-  }
-
-  if (!address) {
-    return <>Loading</>
+  if (!account || accountState.loading) {
+    return (
+      <SignIn
+        onConnect={() => accountState.select()}
+        isConnecting={accountState.loading}
+      />
+    )
   }
 
   if (questDesigner) {
@@ -53,20 +55,12 @@ const ViewUpdatedQuest = ({ id }: { id: string }) => {
     )
 
     return (
-      <div style={{ height: "100vh", width: "100vw" }}>
-        <QuestsDesigner
-          saveDesignButton={{
-            content: "Save new design",
-            onClick: (definition) => {
-              setQuest({ ...quest, definition })
-              setQuestDesigner(false)
-            },
-          }}
-          closeDesigner={() => setQuestDesigner(false)}
-          initialNodes={nodes}
-          initialEdges={edges}
-        />
-      </div>
+      <DesignerView
+        type="old"
+        close={() => setQuestDesigner(false)}
+        initialEdges={edges}
+        initialNodes={nodes}
+      />
     )
   }
 
@@ -89,6 +83,7 @@ const ViewUpdatedQuest = ({ id }: { id: string }) => {
           <Back onClick={() => back()} />
           <div style={{ marginLeft: "24px" }}>
             <h2>View Quest</h2>
+            <p>Quest ID: {quest.id}</p>
           </div>
         </div>
         <div
@@ -98,12 +93,16 @@ const ViewUpdatedQuest = ({ id }: { id: string }) => {
             width: "55%",
           }}
         >
-          <Button onClick={() => setQuestDesigner(true)}>
+          <Button
+            onClick={() => setQuestDesigner(true)}
+            inverted
+            style={{ border: "none" }}
+          >
             View Quest Definition
           </Button>
         </div>
       </div>
-      <div style={{ width: "50%" }}>
+      <div style={{ width: "50%", paddingTop: "20px", marginLeft: "60px" }}>
         <Edit
           quest={quest}
           readonly

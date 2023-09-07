@@ -25,13 +25,11 @@ import "./src/theme.css"
 
 import Layout from "decentraland-gatsby/dist/components/Layout/Layout"
 import Menu from "decentraland-gatsby/dist/components/User/UserMenu"
-import { useAuthContext } from "decentraland-gatsby/dist/context/Auth"
 import AuthProvider from "decentraland-gatsby/dist/context/Auth/AuthProvider"
 import FeatureFlagProvider from "decentraland-gatsby/dist/context/FeatureFlag/FeatureFlagProvider"
 import ShareProvider from "decentraland-gatsby/dist/context/Share/ShareProvider"
 import { IntlProvider } from "decentraland-gatsby/dist/plugins/intl"
 import segment from "decentraland-gatsby/dist/utils/development/segment"
-import { SignIn } from "decentraland-ui/dist/components/SignIn/SignIn"
 
 export const registerServiceWorker = () => true
 
@@ -44,18 +42,10 @@ export const wrapRootElement = ({ element }) => (
 )
 
 export const wrapPageElement = ({ element, props }) => {
-  const [account, accountState] = useAuthContext()
   return (
     <IntlProvider {...props.pageContext.intl}>
       <Layout {...props} rightMenu={<Menu />} leftMenu={<></>} hideFooter>
-        {!account || accountState.loading ? (
-          <SignIn
-            onConnect={() => accountState.select()}
-            isConnecting={accountState.loading}
-          />
-        ) : (
-          element
-        )}
+        {element}
       </Layout>
     </IntlProvider>
   )

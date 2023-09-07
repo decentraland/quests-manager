@@ -5,6 +5,10 @@ import { DraftQuest } from "./types"
 export const LOCAL_DB = "draft_quests"
 
 export const getQuestDrafts = (): DraftQuest[] => {
+  if (typeof window === "undefined") {
+    return []
+  }
+
   return JSON.parse(localStorage.getItem(LOCAL_DB) || "[]")
 }
 
@@ -13,6 +17,8 @@ export const getQuestDraftById = (id: number) => {
 }
 
 export const storeQuestDraft = (quest: Omit<DraftQuest, "id">) => {
+  if (typeof window === "undefined") return
+
   const db = getQuestDrafts()
   const id = db.length ? db[db.length - 1].id + 1 : 1
   db.push({ id, ...quest })
@@ -20,6 +26,8 @@ export const storeQuestDraft = (quest: Omit<DraftQuest, "id">) => {
 }
 
 export const updateQuestDraft = (quest: DraftQuest): boolean => {
+  if (typeof window === "undefined") return false
+
   const db = getQuestDrafts()
   const index = db.findIndex((q) => q.id == quest.id)
   if (index !== -1) {
@@ -35,6 +43,8 @@ export const updateQuestDraftDefinition = (
   id: number,
   newDefinition: Pick<DraftQuest, "definition" | "metadata">
 ): boolean => {
+  if (typeof window === "undefined") return false
+
   const db = getQuestDrafts()
   const index = db.findIndex((q) => q.id == id)
   if (index !== -1) {
@@ -48,6 +58,8 @@ export const updateQuestDraftDefinition = (
 }
 
 export const deleteQuestDraft = (id: number): boolean => {
+  if (typeof window === "undefined") return false
+
   const db = getQuestDrafts()
   const index = db.findIndex((q) => q.id == id)
   if (index !== -1) {

@@ -85,7 +85,7 @@ export class QuestsClient extends API {
       throw new Error("Quest must have a name")
     }
 
-    return this.fetch<{ id: string }>(
+    return this.fetch<{ quest_id: string }>(
       `/quests/${id}`,
       this.options().method("PUT").authorization({ sign: true }).json(quest)
     )

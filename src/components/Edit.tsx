@@ -19,7 +19,7 @@ export const Edit = ({
 }) => {
   return (
     <>
-      <h3>Basic Info</h3>
+      <h3>Quest Information</h3>
       <div
         style={{
           display: "flex",
