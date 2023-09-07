@@ -1,5 +1,6 @@
 body {
   background: var(--background);
+  height: 0%;
 }
 
 .dcl.navbar.LayoutNavbarContainer {
