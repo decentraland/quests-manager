@@ -182,7 +182,7 @@ const EditDraft = ({ id }: { id: string }) => {
               publishedQuestID: "",
               publishingQuest: true,
               publishedQuest: false,
-              publishQuestLoading: true,
+              publishQuestLoading: false,
               savedDraft: false,
             })
           }}
@@ -208,7 +208,7 @@ const EditDraft = ({ id }: { id: string }) => {
               publishedQuestID: "",
               publishingQuest: false,
               publishedQuest: false,
-              publishQuestLoading: true,
+              publishQuestLoading: false,
               savedDraft: false,
             })
           }}
@@ -274,10 +274,10 @@ const SavedDraftModal = ({ onClick }: { onClick: () => void }) => (
 
 const QuestPublished = ({ onClick }: { onClick: () => void }) => (
   <Modal open={true} size="tiny">
-    <Modal.Content>Your Quest Was published successfully</Modal.Content>
+    <Modal.Content>Your Quest was published!</Modal.Content>
     <Modal.Actions>
       <Button primary onClick={onClick}>
-        Go
+        Go to edit page
       </Button>
     </Modal.Actions>
   </Modal>
@@ -296,13 +296,20 @@ const PublishingQuest = ({
     <Modal.Header>You're about to publish the Quest</Modal.Header>
     <Modal.Content>What do you want to do with the Draft?</Modal.Content>
     <Modal.Actions>
-      <Button primary onClick={onProceed}>
+      <Button primary onClick={onProceed} size="small">
         Keep it & Publish
       </Button>
-      <Button inverted onClick={onDelete}>
+      <Button
+        inverted
+        onClick={onDelete}
+        size="small"
+        style={{ backgroundColor: "transparent" }}
+      >
         Delete it & Publsih
       </Button>
-      <Button onClick={onCancel}>Cancel</Button>
+      <Button onClick={onCancel} size="small" style={{ minWidth: "0" }}>
+        Cancel
+      </Button>
     </Modal.Actions>
   </Modal>
 )
