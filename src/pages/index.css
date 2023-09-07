@@ -1,3 +1,31 @@
 .ui.container.full.overview-container {
     padding-top: 20px;
 }
+
+.quest-table-column-name {
+    width: 20%;
+    font-weight: 400;
+    font-size: 13px;
+    color: #736E7D
+}
+
+.box {
+    height: 1px;
+    width: 1232px;
+}
+
+.box .line {
+    background-color: #726d7c;
+    height: 3px;
+    left: 0;
+    opacity: 0.32;
+    position: fixed;
+    top: 0;
+    width: 1234px;
+}
+
+.ui.button.quests-btn {
+    width: 33%;
+    min-width: 0;
+    padding: 7px 0;
+}

@@ -12,3 +12,12 @@
 .key-value .dcl.field.simple .message {
     display: none;
 }
+
+.dcl.toast.info.quest-toast {
+    background-color: var(--primary);
+    width: 10%;
+}
+
+.dcl.toast.info.quest-toast .title {
+    font-size: 16px
+}

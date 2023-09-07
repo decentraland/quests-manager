@@ -3,7 +3,8 @@ import React, { useEffect, useState } from "react"
 import { QuestsDesigner } from "@dcl/quests-designer"
 import { generateNodesAndEdgesFromQuestDefinition } from "@dcl/quests-designer/dist/utils"
 import { useAuthContext } from "decentraland-gatsby/dist/context/Auth"
-import { Link, navigate } from "decentraland-gatsby/dist/plugins/intl"
+import { Link, back } from "decentraland-gatsby/dist/plugins/intl"
+import { Back } from "decentraland-ui/dist/components/Back/Back"
 import { Button } from "decentraland-ui/dist/components/Button/Button"
 import { Container } from "decentraland-ui/dist/components/Container/Container"
 
@@ -18,7 +19,7 @@ const EditPublishedQuest = ({ id }: { id: string }) => {
   const [quest, setQuest] = useState<QuestAmplified | null>(null)
   const [questDesigner, setQuestDesigner] = useState(false)
   const [oldVersions, setOldVersions] = useState<string[]>([])
-  const [address, { loading }] = useAuthContext()
+  const [address] = useAuthContext()
 
   let questClient: QuestsClient
   if (address) {
@@ -42,14 +43,6 @@ const EditPublishedQuest = ({ id }: { id: string }) => {
 
   if (!quest) {
     return <Container>Loading</Container>
-  }
-
-  if (loading) {
-    return <>Loading</>
-  }
-
-  if (!address) {
-    return <>Loading</>
   }
 
   if (questDesigner) {
@@ -77,33 +70,61 @@ const EditPublishedQuest = ({ id }: { id: string }) => {
 
   return (
     <Container>
-      <h2>Edit Quest {quest.id}</h2>
-      <Edit
-        quest={quest}
-        onChange={(editedQuest) => setQuest({ ...quest, ...editedQuest })}
-      />
-      <h3>Steps & Connections</h3>
-      <p style={{ fontStyle: "italic", color: "gray" }}>
-        Steps and Connection are edited outside this tab. After clicking "save"
-        button on the other tab, you should click "Update Quest" here in order
-        to publish a new version
-      </p>
       <div
         style={{
-          marginTop: "20px",
+          width: "100%",
+          display: "flex",
+          justifyContent: "flex-start",
         }}
       >
-        <Button
+        <div
           style={{
-            color: "white",
-            backgroundColor: "var(--primary)",
-            padding: "7px 20px",
-            borderRadius: "5px",
+            display: "flex",
+            justifyContent: "flex-start",
+            width: "45%",
           }}
-          onClick={() => setQuestDesigner(true)}
         >
-          Edit Quest Definition
-        </Button>
+          <Back onClick={() => back()} />
+          <div style={{ marginLeft: "24px" }}>
+            <h2>Edit Quest</h2>
+          </div>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            width: "55%",
+          }}
+        >
+          <Button onClick={() => setQuestDesigner(true)}>
+            Edit Quest Definition
+          </Button>
+          <Button
+            type="button"
+            content={quest.active ? "Deactivate Quest" : "Activate Quest"}
+            inverted
+            style={{
+              marginLeft: "10px",
+            }}
+            size="small"
+            onClick={async () => {
+              if (quest.active) {
+                await questClient.deactivateQuest(quest.id)
+              } else {
+                await questClient.activateQuest(quest.id)
+              }
+              const updatedQuest = await questClient.getQuest(quest.id)
+              setQuest({ ...updatedQuest })
+            }}
+          />
+        </div>
+      </div>
+      <p>Quest ID: {quest.id}</p>
+      <div style={{ width: "50%" }}>
+        <Edit
+          quest={quest}
+          onChange={(editedQuest) => setQuest({ ...quest, ...editedQuest })}
+        />
       </div>
       <div style={{ marginTop: "20px" }}>
         <h3>Old Versions</h3>
@@ -120,40 +141,16 @@ const EditPublishedQuest = ({ id }: { id: string }) => {
           display: "flex",
           justifyContent: "space-between",
           marginTop: "40px",
+          marginBottom: "40px",
         }}
       >
         <Button
           type="button"
-          content="Update Quest"
+          primary
+          content="Publish Changes"
           size="small"
-          color="google plus"
-          style={{ maxWidth: "20px" }}
           onClick={() => questClient.updateQuest(quest.id, quest)}
-          // Add warning of updating a published quest will cause a new quest
-        />
-        <Button
-          type="button"
-          content={quest.active ? "Deactivate Quest" : "Activate Quest"}
-          size="small"
-          style={{ maxWidth: "20px" }}
-          negative={quest.active}
-          color="orange"
-          onClick={async () => {
-            if (quest.active) {
-              await questClient.deactivateQuest(quest.id)
-            } else {
-              await questClient.activateQuest(quest.id)
-            }
-            const updatedQuest = await questClient.getQuest(quest.id)
-            setQuest({ ...updatedQuest })
-          }}
-        />
-        <Button
-          type="button"
-          content="Close"
-          size="small"
-          style={{ maxWidth: "20px", marginLeft: "10px" }}
-          onClick={() => navigate(locations.home())}
+          // TODO: Add warning of updating a published quest will cause a new quest
         />
       </div>
     </Container>

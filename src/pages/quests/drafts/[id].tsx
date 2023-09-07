@@ -2,7 +2,8 @@ import React, { useState } from "react"
 
 import { generateNodesAndEdgesFromQuestDefinition } from "@dcl/quests-designer/dist/utils"
 import { useAuthContext } from "decentraland-gatsby/dist/context/Auth"
-import { navigate } from "decentraland-gatsby/dist/plugins/intl"
+import { back } from "decentraland-gatsby/dist/plugins/intl"
+import { Back } from "decentraland-ui/dist/components/Back/Back"
 import { Button } from "decentraland-ui/dist/components/Button/Button"
 import { Container } from "decentraland-ui/dist/components/Container/Container"
 
@@ -13,7 +14,6 @@ import {
   deleteQuestDraft,
   getQuestDraftById,
   isValidQuestDraft,
-  locations,
   updateQuestDraft,
 } from "../../../utils"
 
@@ -45,7 +45,7 @@ const EditDraft = ({ id }: { id: string }) => {
 
   const saveDraft = () => {
     updateQuestDraft(quest)
-    alert("Quest Draft saved!")
+    alert("Draft saved!")
   }
 
   if (questDesigner) {
@@ -66,78 +66,88 @@ const EditDraft = ({ id }: { id: string }) => {
 
   return (
     <Container>
-      <h2>Edit Quest Draft {quest.id}</h2>
-      <Edit
-        quest={quest}
-        onChange={(editedQuest) => setQuestDraft({ ...quest, ...editedQuest })}
-      />
-      <h3>Steps & Connections</h3>
-      <p style={{ fontStyle: "italic", color: "gray" }}>
-        Steps and Connection are edited outside this tab. After clicking "save"
-        button on the other tab, you should click "Save Draft" here in order to
-        have a new version
-      </p>
       <div
         style={{
-          marginTop: "20px",
+          width: "100%",
+          display: "flex",
+          justifyContent: "flex-start",
         }}
       >
-        <Button
+        <div
           style={{
-            color: "white",
-            backgroundColor: "var(--primary)",
-            padding: "7px 20px",
-            borderRadius: "5px",
+            display: "flex",
+            justifyContent: "flex-start",
+            width: "45%",
           }}
-          onClick={() => setQuestDesigner(true)}
         >
-          Edit Quest Definition
-        </Button>
+          <Back onClick={() => back()} />
+          <div style={{ marginLeft: "24px" }}>
+            <h2>Edit Draft</h2>
+          </div>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            width: "55%",
+          }}
+        >
+          <Button onClick={() => setQuestDesigner(true)}>
+            Edit Quest Definition
+          </Button>
+          <Button
+            type="button"
+            content="Delete Draft"
+            size="small"
+            style={{
+              marginLeft: "10px",
+            }}
+            inverted
+            onClick={() => {
+              deleteQuestDraft(quest.id)
+            }}
+          />
+        </div>
+      </div>
+      <div style={{ width: "50%" }}>
+        <Edit
+          quest={quest}
+          onChange={(editedQuest) =>
+            setQuestDraft({ ...quest, ...editedQuest })
+          }
+        />
       </div>
       <div
         style={{
           display: "flex",
           justifyContent: "space-between",
           marginTop: "40px",
+          width: "30%",
         }}
       >
         <Button
           type="button"
           content="Save Draft"
           size="small"
-          positive
-          style={{ maxWidth: "20px" }}
+          style={{
+            backgroundColor: "transparent",
+            border: "2px solid black",
+            maxWidth: "20px",
+          }}
           onClick={() => saveDraft()}
         />
         <Button
           type="button"
           content="Publish"
           size="small"
+          primary
           disabled={!isValidQuestDraft(quest)}
           style={{ maxWidth: "20px" }}
-          color="instagram"
           onClick={() => {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { metadata, id, ...rest } = quest
             questClient.publishQuest(rest)
           }}
-        />
-        <Button
-          type="button"
-          content="Delete Draft"
-          size="small"
-          negative
-          style={{ maxWidth: "20px" }}
-          onClick={() => {
-            deleteQuestDraft(quest.id)
-          }}
-        />
-        <Button
-          type="button"
-          content="Close"
-          size="small"
-          style={{ maxWidth: "20px", marginLeft: "10px" }}
-          onClick={() => navigate(locations.home())}
         />
       </div>
     </Container>

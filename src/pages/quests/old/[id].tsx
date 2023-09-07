@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react"
 import { QuestsDesigner } from "@dcl/quests-designer"
 import { generateNodesAndEdgesFromQuestDefinition } from "@dcl/quests-designer/dist/utils"
 import { useAuthContext } from "decentraland-gatsby/dist/context/Auth"
+import { back } from "decentraland-gatsby/dist/plugins/intl"
+import { Back } from "decentraland-ui/dist/components/Back/Back"
 import { Button } from "decentraland-ui/dist/components/Button/Button"
 import { Container } from "decentraland-ui/dist/components/Container/Container"
 
@@ -70,28 +72,43 @@ const ViewUpdatedQuest = ({ id }: { id: string }) => {
 
   return (
     <Container>
-      <h2>View Updated Quest {quest.id}</h2>
-      <Edit
-        quest={quest}
-        onChange={(editedQuest) => setQuest({ ...quest, ...editedQuest })}
-      />
-      <h3>Steps & Connections</h3>
       <div
         style={{
-          marginTop: "20px",
+          width: "100%",
+          display: "flex",
+          justifyContent: "flex-start",
         }}
       >
-        <Button
+        <div
           style={{
-            color: "white",
-            backgroundColor: "var(--primary)",
-            padding: "7px 20px",
-            borderRadius: "5px",
+            display: "flex",
+            justifyContent: "flex-start",
+            width: "45%",
           }}
-          onClick={() => setQuestDesigner(true)}
         >
-          View Quest Definition
-        </Button>
+          <Back onClick={() => back()} />
+          <div style={{ marginLeft: "24px" }}>
+            <h2>View Quest</h2>
+          </div>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            width: "55%",
+          }}
+        >
+          <Button onClick={() => setQuestDesigner(true)}>
+            View Quest Definition
+          </Button>
+        </div>
+      </div>
+      <div style={{ width: "50%" }}>
+        <Edit
+          quest={quest}
+          readonly
+          onChange={(editedQuest) => setQuest({ ...quest, ...editedQuest })}
+        />
       </div>
     </Container>
   )

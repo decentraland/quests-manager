@@ -59,7 +59,9 @@ export const AddItem = ({
         marginBottom: "20px",
       }}
     >
-      <h4>Current Items: </h4>
+      <h4>
+        Reward Items <span style={{ color: "var(--primary)" }}>*</span>
+      </h4>
       {items.length ? (
         <ul>
           {items.map((item, i) => (
@@ -67,9 +69,7 @@ export const AddItem = ({
               size="small"
               type="button"
               content={`${item.name}`}
-              style={{
-                color: "var(--primary)",
-              }}
+              inverted
               onClick={() => setCurrentSelected({ ...item, index: i })}
             />
           ))}
@@ -81,7 +81,8 @@ export const AddItem = ({
         type="button"
         content="Add item"
         size="small"
-        style={{ maxWidth: "20px" }}
+        inverted
+        style={{ border: "none", width: "20px" }}
         onClick={() => setAdding({ name: "", imageLink: "" })}
       />
     </div>
