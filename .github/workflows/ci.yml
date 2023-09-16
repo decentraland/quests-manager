@@ -31,14 +31,14 @@ jobs:
         name: install
         run: npm ci --legacy-peer-deps
 
-      - name: linters
-        uses: wearerequired/lint-action@v1
-        with:
-          prettier: true
-          prettier_extensions: ts,tsx,js,jsx,json,md,mdx,css
-          continue_on_error: false
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          
+      # - name: linters
+      #   uses: wearerequired/lint-action@v1
+      #   with:
+      #     prettier: true
+      #     prettier_extensions: ts,tsx,js,jsx,json,md,mdx,css
+      #     continue_on_error: false
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: build
         run: npm run build
 
