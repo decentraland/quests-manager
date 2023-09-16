@@ -1,0 +1,56 @@
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  release:
+    types:
+      - created
+
+name: CI
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@master
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 18.x
+
+      - name: set package.json version
+        uses: menduz/oddish-action@master
+        with:
+          deterministic-snapshot: true
+          only-update-versions: true
+
+      - id: install
+        name: install
+        run: npm ci --legacy-peer-deps
+
+      - name: linters
+        uses: wearerequired/lint-action@v1
+        with:
+          prettier: true
+          prettier_extensions: ts,tsx,js,jsx,json,md,mdx,css
+          continue_on_error: false
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: build
+        run: npm run build
+
+      # - name: test
+      #   run: npm run test
+
+      - name: publish npm package
+        uses: menduz/oddish-action@master
+        with:
+          ## use action runId instead of current date to generate snapshot numbers
+          deterministic-snapshot: true
+          access: public
+          cwd: './public'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
