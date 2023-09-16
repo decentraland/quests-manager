@@ -41,10 +41,40 @@ export const wrapRootElement = ({ element }) => (
   </AuthProvider>
 )
 
+const Title = () => {
+  return (
+    <p
+      style={{
+        fontWeight: 600,
+        display: "flex",
+        alignItems: "center",
+        marginLeft: "15px",
+      }}
+    >
+      QUESTS MANAGER
+      <span
+        style={{
+          paddingLeft: 8,
+          paddingRight: 8,
+          paddingTop: 2,
+          paddingBottom: 2,
+          background: "var(--primary)",
+          borderRadius: 14,
+          color: "#FCFCFC",
+          fontSize: 11,
+          marginLeft: "2px",
+        }}
+      >
+        BETA
+      </span>
+    </p>
+  )
+}
+
 export const wrapPageElement = ({ element, props }) => {
   return (
     <IntlProvider {...props.pageContext.intl}>
-      <Layout {...props} rightMenu={<Menu />} leftMenu={<></>} hideFooter>
+      <Layout {...props} leftMenu={<Title />} rightMenu={<Menu />} hideFooter>
         {element}
       </Layout>
     </IntlProvider>

@@ -3,6 +3,8 @@ import React, { useState } from "react"
 import { Button } from "decentraland-ui/dist/components/Button/Button"
 import { Field } from "decentraland-ui/dist/components/Field/Field"
 
+import { urlRegex } from "../utils"
+
 export const AddItem = ({
   items,
   onSaveItem,
@@ -101,62 +103,67 @@ const Adder = ({
   onClose: () => void
 }) => {
   return (
-    <>
+    <div style={{ width: "100%", marginTop: "20px" }}>
+      <h4>Adding Item</h4>
       <div
         style={{
-          marginTop: "80px",
           display: "flex",
-          flexDirection: "column",
-          flexWrap: "wrap",
+          maxWidth: "100%",
+          justifyContent: "space-between",
+        }}
+        className="key-value"
+      >
+        <Field
+          label="name"
+          value={item.name}
+          onChange={(e) => onChange("name", e.target.value)}
+          error={item.name.length < 3}
+          message={
+            item.name.length < 3 ? "Name should be at least 3 chars" : undefined
+          }
+        />
+        <Field
+          label="image link"
+          value={item.imageLink}
+          onChange={(e) => onChange("imageLink", e.target.value)}
+          error={new RegExp(urlRegex).test(item.imageLink || "") ? false : true}
+          message={
+            !new RegExp(urlRegex).test(item.imageLink || "")
+              ? "Image URL is invalud"
+              : undefined
+          }
+        />
+      </div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-start",
         }}
       >
-        <h4>Adding Item</h4>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            width: "50%",
+        <Button
+          type="button"
+          content="Save"
+          secondary
+          size="small"
+          style={{ maxWidth: "20px", marginRight: "10px" }}
+          disabled={
+            item?.name.length < 3 ||
+            item?.imageLink == "" ||
+            !new RegExp(urlRegex).test(item.imageLink || "")
+          }
+          onClick={() => onSave()}
+        />
+        <Button
+          type="button"
+          content="Close"
+          inverted
+          size="small"
+          style={{ maxWidth: "20px" }}
+          onClick={() => {
+            onClose()
           }}
-        >
-          <Field
-            label="name"
-            value={item.name}
-            style={{ maxWidth: "50%" }}
-            onChange={(e) => onChange("name", e.target.value)}
-          />
-          <Field
-            label="image link"
-            value={item.imageLink}
-            style={{ maxWidth: "50%" }}
-            onChange={(e) => onChange("imageLink", e.target.value)}
-          />
-        </div>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            width: "40%",
-          }}
-        >
-          <Button
-            type="button"
-            content="Save"
-            size="small"
-            style={{ maxWidth: "20px" }}
-            disabled={item?.name == "" || item?.imageLink == ""}
-            onClick={() => onSave()}
-          />
-          <Button
-            type="button"
-            content="Close"
-            size="small"
-            style={{ maxWidth: "20px" }}
-            onClick={() => {
-              onClose()
-            }}
-          />
-        </div>
+        />
       </div>
-    </>
+    </div>
   )
 }

@@ -1,26 +1,21 @@
 import React from "react"
 
+import { QuestDefinition } from "@dcl/quests-client/dist/protocol/decentraland/quests/definitions.gen"
 import { Edge, Node } from "@dcl/quests-designer/dist/types"
 import useAsyncState from "decentraland-gatsby/dist/hooks/useAsyncState"
-import { back, navigate } from "decentraland-gatsby/dist/plugins/intl"
-
-import {
-  locations,
-  storeQuestDraft,
-  updateQuestDraftDefinition,
-} from "../utils"
+import { back } from "decentraland-gatsby/dist/plugins/intl"
 
 export const DesignerView = ({
   initialNodes,
   initialEdges,
   type = "new",
-  questId,
+  onClick,
   close,
 }: {
   initialNodes?: Node[]
   initialEdges?: Edge[]
   type?: "new" | "draft" | "published" | "old"
-  questId?: string
+  onClick?: (nodes: Node[], edges: Edge[], definition?: QuestDefinition) => void
   close?: () => void
 }) => {
   const [QuestDesigner] = useAsyncState(() => import("@dcl/quests-designer"))
@@ -29,44 +24,16 @@ export const DesignerView = ({
       {QuestDesigner && (
         <QuestDesigner.QuestsDesigner
           saveDesignButton={
-            type !== "old"
+            type !== "old" && onClick
               ? {
                   content:
                     type == "new"
-                      ? "Generate New Quest"
+                      ? "Save Draft"
                       : type == "draft"
                       ? "Update Draft"
                       : "Update Quest",
-                  onClick: (definition, nodes) => {
-                    switch (type) {
-                      case "new": {
-                        const id = storeQuestDraft({
-                          definition,
-                          metadata: {
-                            stepPositions: nodes.reduce((acc, curr) => {
-                              acc[curr.id] = curr.position
-                              return acc
-                            }, {} as Record<string, { x: number; y: number }>),
-                          },
-                        })
-                        if (typeof window !== "undefined") {
-                          navigate(locations.editDraftQuest(id))
-                        }
-                        break
-                      }
-                      case "draft":
-                        updateQuestDraftDefinition(Number(questId), {
-                          definition,
-                          metadata: {
-                            stepPositions: nodes.reduce((acc, curr) => {
-                              acc[curr.id] = curr.position
-                              return acc
-                            }, {} as Record<string, { x: number; y: number }>),
-                          },
-                        })
-                        break
-                    }
-                  },
+                  onClick: onClick,
+                  validate: type == "published",
                 }
               : undefined
           }

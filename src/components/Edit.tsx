@@ -7,6 +7,7 @@ import { Header } from "decentraland-ui/dist/components/Header/Header"
 
 import { AddItem } from "./AddItem"
 import { RawQuest } from "../types"
+import { urlRegex } from "../utils"
 
 export const Edit = ({
   onChange,
@@ -39,6 +40,12 @@ export const Edit = ({
             onChange({ ...quest, name: e.target.value })
           }}
           readOnly={readonly}
+          error={quest.name && quest.name?.length < 5 ? true : false}
+          message={
+            quest.name && quest.name?.length < 5
+              ? "Name should be at least 5 chars "
+              : undefined
+          }
         />
         <Header sub size="small">
           <label>
@@ -55,6 +62,14 @@ export const Edit = ({
             })
           }}
           readOnly={readonly}
+          error={
+            quest.description && quest.description?.length < 5 ? true : false
+          }
+          message={
+            quest.description && quest.description?.length < 5
+              ? "Description should be at least 5 chars "
+              : undefined
+          }
         />
         <Header sub size="small">
           <label>
@@ -71,6 +86,20 @@ export const Edit = ({
             })
           }}
           readOnly={readonly}
+          error={
+            !quest.imageUrl
+              ? false
+              : new RegExp(urlRegex).test(quest.imageUrl)
+              ? false
+              : true
+          }
+          message={
+            !quest.imageUrl
+              ? false
+              : !new RegExp(urlRegex).test(quest.imageUrl)
+              ? "Image URL is invalid"
+              : undefined
+          }
         />
       </div>
       <div>
@@ -96,24 +125,24 @@ export const Edit = ({
             }}
           />
         </div>
-        <p
-          style={{
-            fontSize: "10px",
-            marginBottom: "10px",
-            whiteSpace: "pre",
-            color: "#676370",
-          }}
-        >
-          Available placeholders for Webhook URL and Data to Receive (request
-          body): {"\n"}
-          &#123; <span style={{ fontWeight: "bold" }}>quest_id</span>&#125; ,
-          &#123; <span style={{ fontWeight: "bold" }}>user_address</span>&#125;{" "}
-          {"\n"}
-          E.g: &#123; beneficary: &#123;user_address&#125;, quest:
-          &#123;quest_id&#125; &#125;
-        </p>
         {quest.reward && (
           <>
+            <p
+              style={{
+                fontSize: "10px",
+                marginBottom: "10px",
+                whiteSpace: "pre",
+                color: "#676370",
+              }}
+            >
+              Available placeholders for Webhook URL and Data to Receive
+              (request body): {"\n"}
+              &#123; <span style={{ fontWeight: "bold" }}>quest_id</span>&#125;
+              , &#123; <span style={{ fontWeight: "bold" }}>user_address</span>
+              &#125; {"\n"}
+              E.g: &#123; beneficary: &#123;user_address&#125;, quest:
+              &#123;quest_id&#125; &#125;
+            </p>
             <div
               style={{
                 display: "flex",
@@ -143,8 +172,18 @@ export const Edit = ({
                 }}
                 placeholder="URL to call when the quest is completed"
                 readOnly={readonly}
+                error={
+                  new RegExp(urlRegex).test(quest.reward.hook.webhookUrl || "")
+                    ? false
+                    : true
+                }
+                message={
+                  !new RegExp(urlRegex).test(quest.reward.hook.webhookUrl || "")
+                    ? "Webhook URL is invalud"
+                    : undefined
+                }
               />
-              <div style={{ width: "50%" }}>
+              <div style={{ width: "100%" }}>
                 <Header sub size="small">
                   <label>
                     Data to Receive{" "}
@@ -164,6 +203,7 @@ export const Edit = ({
                           style={{
                             display: "flex",
                             justifyContent: "space-between",
+                            alignItems: "center",
                           }}
                           className="key-value"
                         >
@@ -188,6 +228,10 @@ export const Edit = ({
                               })
                             }}
                             readOnly={readonly}
+                            error={key.length ? false : true}
+                            message={
+                              !key.length ? "Key cannot be empty" : undefined
+                            }
                           />
                           <span style={{ fontSize: "24px" }}>:</span>
                           <Field
@@ -210,6 +254,12 @@ export const Edit = ({
                               })
                             }}
                             readOnly={readonly}
+                            error={value.length ? false : true}
+                            message={
+                              !value.length
+                                ? "Value cannot be empty"
+                                : undefined
+                            }
                           />
                           {!readonly && (
                             <button
@@ -276,32 +326,32 @@ export const Edit = ({
                   />
                 )}
               </div>
-            </div>
-            {!readonly && (
-              <AddItem
-                items={quest?.reward?.items || []}
-                onSaveItem={(item, index) => {
-                  const newItems = [...(quest?.reward?.items || [])]
+              {!readonly && (
+                <AddItem
+                  items={quest?.reward?.items || []}
+                  onSaveItem={(item, index) => {
+                    const newItems = [...(quest?.reward?.items || [])]
 
-                  if (index === -1) {
-                    newItems.push(item)
-                  } else {
-                    newItems[index] = item
-                  }
+                    if (index === -1) {
+                      newItems.push(item)
+                    } else {
+                      newItems[index] = item
+                    }
 
-                  onChange({
-                    ...quest,
-                    reward: {
-                      hook: {
-                        requestBody: quest.reward?.hook.requestBody || {},
-                        webhookUrl: quest.reward?.hook?.webhookUrl || "",
+                    onChange({
+                      ...quest,
+                      reward: {
+                        hook: {
+                          requestBody: quest.reward?.hook.requestBody || {},
+                          webhookUrl: quest.reward?.hook?.webhookUrl || "",
+                        },
+                        items: newItems,
                       },
-                      items: newItems,
-                    },
-                  })
-                }}
-              />
-            )}
+                    })
+                  }}
+                />
+              )}
+            </div>
           </>
         )}
       </div>

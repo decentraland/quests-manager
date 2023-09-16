@@ -1,3 +1,4 @@
+import { validateCreateQuest } from "@dcl/quests-client/dist/utils"
 import API from "decentraland-gatsby/dist/utils/api/API"
 
 import { DraftQuest } from "./types"
@@ -83,22 +84,16 @@ export const locations = {
   oldQuest: (id: string) => API.url(GATSBY_BASE_URL, `/quests/old/${id}`),
 }
 
-export const isValidQuestDraft = (
-  quest: Omit<DraftQuest, "metadata" | "id">
-): boolean => {
-  if (!quest.name) return false
-
-  if (!quest.definition) return false
-
-  if (!quest.imageUrl) return false
-
-  if (!quest.description) return false
-
-  if (quest.reward) {
-    if (quest.reward.hook.requestBody && !quest.reward.hook.webhookUrl)
-      return false
-    if (quest.reward.items.length === 0) return false
+export const isValidQuest = (q: DraftQuest) => {
+  try {
+    validateCreateQuest(q)
+    return true
+  } catch (error) {
+    console.error("IsValidQuest > ", error)
+    return false
   }
-
-  return true
 }
+
+export const urlRegex =
+  // eslint-disable-next-line no-useless-escape
+  /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()!@:%_\+.~#?&\/\/=]*)/gm

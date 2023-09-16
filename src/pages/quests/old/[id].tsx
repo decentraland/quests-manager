@@ -98,7 +98,7 @@ const ViewUpdatedQuest = ({ id }: { id: string }) => {
             inverted
             style={{ border: "none" }}
           >
-            View Quest Definition
+            View Quest Steps
           </Button>
         </div>
       </div>

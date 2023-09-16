@@ -75,6 +75,14 @@ const EditPublishedQuest = ({ id }: { id: string }) => {
         close={() => setQuestDesigner(false)}
         initialEdges={edges}
         initialNodes={nodes}
+        onClick={(nodes, edges, definition) => {
+          if (typeof window === undefined) return
+          alert("Quest Definition saved")
+          setQuest({
+            ...quest,
+            definition: definition,
+          })
+        }}
       />
     )
   }
@@ -116,7 +124,7 @@ const EditPublishedQuest = ({ id }: { id: string }) => {
           }}
         >
           <Button onClick={() => setQuestDesigner(true)}>
-            Edit Quest Definition
+            Edit Quest Steps
           </Button>
           <Button
             type="button"
@@ -155,7 +163,7 @@ const EditPublishedQuest = ({ id }: { id: string }) => {
         />
       </div>
       <div style={{ marginTop: "20px", marginLeft: "60px" }}>
-        <h3>Old Versions</h3>
+        <h3>Previous Versions</h3>
         {oldVersions.length > 0 ? (
           <ul style={{ listStyle: "none" }}>
             {oldVersions.map((version) => (
@@ -167,7 +175,7 @@ const EditPublishedQuest = ({ id }: { id: string }) => {
             ))}
           </ul>
         ) : (
-          "No old versions"
+          "No previous versions"
         )}
       </div>
       <div
@@ -305,18 +313,20 @@ const ChangeQuestState = ({
   onProceed: () => void
   onCancel: () => void
 }) => (
-  <Modal open={true} size="tiny">
-    <Modal.Header>You're about to change the state of your Quest</Modal.Header>
+  <Modal open={true} size="tiny" className="quests-modal">
+    <Modal.Header>
+      {type == "activate" ? "Activate" : "Deactivate"} Quest
+    </Modal.Header>
     <Modal.Content>
       {type == "activate"
-        ? "If you activate your Quest, anyone can start playing it again"
-        : "If you deactivate your Quest, no one will be able to start playing your Quest"}
+        ? "Players will be able to start the Quest again."
+        : "Players will no longer be able to start the Quest. Players who have already started the Quest will be able to continue"}
     </Modal.Content>
     <Modal.Actions>
-      <Button primary onClick={onProceed} size="small">
-        Proceed
+      <Button primary onClick={onProceed} size="medium">
+        {type == "activate" ? "Activate" : "Deactivate"}
       </Button>
-      <Button onClick={onCancel} size="small">
+      <Button onClick={onCancel} size="medium">
         Cancel
       </Button>
     </Modal.Actions>

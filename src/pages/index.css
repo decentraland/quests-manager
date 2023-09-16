@@ -29,3 +29,42 @@
     min-width: 0;
     padding: 7px 0;
 }
+
+.ui.tiny.modal.quests-modal {
+    width: 360px;
+    padding: 24px;
+    border-radius: 10px;
+}
+
+.ui.tiny.modal.quests-modal > .header {
+    text-align: center;
+    border: none;
+    margin: 0;
+    padding: 0;
+    font-weight: 700;
+    font-size: 20px;
+}
+
+.ui.tiny.modal.quests-modal > .content {
+    width: auto;
+    margin: 24px 0;
+    padding: 0 10px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.ui.tiny.modal.quests-modal > .actions {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border: none;
+    background: none;
+    margin: 0;
+    padding: 0;
+}
+
+.ui.tiny.modal.quests-modal > .actions > .button {
+    margin: 6px 0;
+}
+

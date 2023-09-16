@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react"
 
+import { validateCreateQuest } from "@dcl/quests-client/dist/utils"
 import { useAuthContext } from "decentraland-gatsby/dist/context/Auth"
 import { Link, navigate } from "decentraland-gatsby/dist/plugins/intl"
 import { Button } from "decentraland-ui/dist/components/Button/Button"
@@ -8,12 +9,7 @@ import { SignIn } from "decentraland-ui/dist/components/SignIn/SignIn"
 
 import { QuestsClient } from "../quests"
 import { DraftQuest, QuestAmplified } from "../types"
-import {
-  deleteQuestDraft,
-  getQuestDrafts,
-  isValidQuestDraft,
-  locations,
-} from "../utils"
+import { deleteQuestDraft, getQuestDrafts, locations } from "../utils"
 
 import "./index.css"
 
@@ -63,6 +59,15 @@ export default function OverviewPage() {
     )
   }
 
+  const isValidQuest = (q: DraftQuest) => {
+    try {
+      validateCreateQuest(q)
+      return true
+    } catch (error) {
+      return false
+    }
+  }
+
   return (
     <Container className="full overview-container">
       <div
@@ -70,14 +75,36 @@ export default function OverviewPage() {
           display: "flex",
           justifyContent: "space-between",
           width: "100%",
+          alignItems: "center",
         }}
       >
-        <h1 style={{ textAlign: "center" }}>Quests Manager</h1>
+        <h1 style={{ textAlign: "center", marginBottom: "0" }}>
+          Quests Manager
+        </h1>
         <Button
           onClick={() => navigate(locations.designer())}
           content="Create Quest"
           primary
         />
+      </div>
+      <div
+        style={{
+          background: "#ECEBED",
+          marginTop: "45px",
+          marginBottom: "40px",
+          width: "410px",
+          borderRadius: 6,
+        }}
+      >
+        <p style={{ padding: 15 }}>
+          Need help getting started? Check out the{" "}
+          <Link
+            href="https://docs.decentraland.org/creator/quests/overview/"
+            style={{ textDecoration: "underline" }}
+          >
+            documentation
+          </Link>{" "}
+        </p>
       </div>
       <h2>My published Quests</h2>
       {quests.length ? (
@@ -167,7 +194,7 @@ export default function OverviewPage() {
                       : "No Description"}
                   </p>
                   <p style={{ width: "20%", marginBottom: "0" }}>
-                    {isValidQuestDraft(q) ? "Ready" : "Not Ready"}
+                    {isValidQuest(q) ? "Ready" : "Not Ready"}
                   </p>
                   <div
                     style={{
@@ -186,7 +213,7 @@ export default function OverviewPage() {
                     <Button
                       size="small"
                       onClick={async () => {
-                        if (isValidQuestDraft(q)) {
+                        if (isValidQuest(q)) {
                           // eslint-disable-next-line @typescript-eslint/no-unused-vars
                           const { id, ...quest } = q
                           await navigator.clipboard.writeText(
@@ -198,7 +225,7 @@ export default function OverviewPage() {
                       className="quests-btn"
                       style={{ padding: "0 0" }}
                       content="Export"
-                      disabled={!isValidQuestDraft(q)}
+                      disabled={!isValidQuest(q)}
                     />
                     <Button
                       size="small"

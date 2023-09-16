@@ -1,9 +1,9 @@
-import { Quest } from "@dcl/quests-designer/dist/protocol/quests"
+import { Quest } from "@dcl/quests-client/dist/protocol/decentraland/quests/definitions.gen"
+import { validateCreateQuest } from "@dcl/quests-client/dist/utils"
 import API from "decentraland-gatsby/dist/utils/api/API"
 import env from "decentraland-gatsby/dist/utils/env"
 
 import { DraftQuest, QuestAmplified, QuestRewards } from "./types"
-import { isValidQuestDraft } from "./utils"
 
 export class QuestsClient extends API {
   static URL = env("QUESTS_SERVER_URL", "https://quests.decentraland.org/api")
@@ -22,13 +22,10 @@ export class QuestsClient extends API {
   }
 
   publishQuest(quest: Omit<DraftQuest, "metadata" | "id">) {
-    if (!isValidQuestDraft(quest)) {
-      throw new Error("Invalid Quest")
-    }
-
+    validateCreateQuest(quest)
     // we must stringify all non-string parameters
     // server expects map<string, string>
-    for (const step of quest.definition.steps) {
+    for (const step of quest.definition!.steps) {
       for (const task of step.tasks) {
         for (const action of task.actionItems) {
           for (const param in action.parameters) {

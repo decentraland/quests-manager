@@ -1,16 +1,19 @@
 import {
   Quest,
   QuestDefinition,
-} from "@dcl/quests-designer/dist/protocol/quests"
+} from "@dcl/quests-client/dist/protocol/decentraland/quests/definitions.gen"
+import { Edge, Node } from "@dcl/quests-designer/dist/types"
 
 export type DraftQuest = {
   id: number
   name?: string
   description?: string
   imageUrl?: string
-  definition: QuestDefinition
+  definition?: QuestDefinition
   metadata: {
     stepPositions?: Record<string, { x: number; y: number }> // A.K.A node positions on the canvas
+    nodes?: Node[]
+    edges?: Edge[]
   }
 } & Partial<QuestRewards>
 
