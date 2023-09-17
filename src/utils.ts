@@ -1,4 +1,5 @@
 import { validateCreateQuest } from "@dcl/quests-client/dist/utils"
+import { getEnvFromQueryParam } from "@dcl/ui-env/dist/location"
 import API from "decentraland-gatsby/dist/utils/api/API"
 
 import { DraftQuest } from "./types"
@@ -75,13 +76,18 @@ export const deleteQuestDraft = (id: number): boolean => {
 
 const GATSBY_BASE_URL = process.env.GATSBY_BASE_URL || "/"
 
+const env = getEnvFromQueryParam(window?.location)
+const param = env ? `?env=${env}` : ""
+
 export const locations = {
-  home: () => API.url(GATSBY_BASE_URL, "/"),
-  designer: () => API.url(GATSBY_BASE_URL, "/design/create"),
+  home: () => API.url(GATSBY_BASE_URL, `/${param}`),
+  designer: () => API.url(GATSBY_BASE_URL, `/design/create${param}`),
   editDraftQuest: (id: number) =>
-    API.url(GATSBY_BASE_URL, `/quests/drafts/${id}`),
-  editPublishedQuest: (id: string) => API.url(GATSBY_BASE_URL, `/quests/${id}`),
-  oldQuest: (id: string) => API.url(GATSBY_BASE_URL, `/quests/old/${id}`),
+    API.url(GATSBY_BASE_URL, `/quests/drafts/${id}${param}`),
+  editPublishedQuest: (id: string) =>
+    API.url(GATSBY_BASE_URL, `/quests/${id}${param}`),
+  oldQuest: (id: string) =>
+    API.url(GATSBY_BASE_URL, `/quests/old/${id}${param}`),
 }
 
 export const isValidQuest = (q: DraftQuest) => {
