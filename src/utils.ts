@@ -76,7 +76,8 @@ export const deleteQuestDraft = (id: number): boolean => {
 
 const GATSBY_BASE_URL = process.env.GATSBY_BASE_URL || "/"
 
-const env = getEnvFromQueryParam(window?.location)
+const env =
+  typeof window !== "undefined" ? getEnvFromQueryParam(window.location) : ""
 const param = env ? `?env=${env}` : ""
 
 export const locations = {
