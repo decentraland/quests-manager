@@ -11,7 +11,7 @@ A Decentraland dApp to handle all your Quest that you build for [Quests Service]
 
 You can edit, update, create, deactivate and activate all your Quests using this Application through the [Decentraland SDK7 Commands](https://github.com/decentraland/js-sdk-toolchain).
 
-## Setup
+## Setup
 
 To start contributing, you should run:
 
