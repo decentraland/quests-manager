@@ -15,7 +15,7 @@
   "homepage": "https://github.com/decentraland/quests-manager#readme",
   "dependencies": {
     "@dcl/quests-client": "^1.0.0",
-    "@dcl/quests-designer": "1.1.1-20230916145506.commit-3a2fb9e",
+    "@dcl/quests-designer": "^1.1.1",
     "autoprefixer": "^10.4.14",
     "caniuse-lite": "^1.0.30001511",
     "core-js": "^3.31.0",
