@@ -1,0 +1,15 @@
+{
+  "name": "@dcl/quests-manager",
+  "version": "0.0.0-development",
+  "description": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/decentraland/quests-manager.git"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/decentraland/quests-manager/issues"
+  },
+  "homepage": "https://github.com/decentraland/quests-manager#readme"
+}

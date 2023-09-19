@@ -84,7 +84,7 @@
     "develop": "gatsby develop --https -H 0.0.0.0",
     "format": "prettier --write '**/*.{ts,tsx,js,jsx,json,md,mdx,css}'",
     "start": "npm run develop",
-    "build": "NODE_ENV='production' gatsby build && cp ./package.json ./public",
+    "build": "NODE_ENV='production' gatsby build",
     "serve": "gatsby serve",
     "clean": "gatsby clean",
     "test": "jest",
